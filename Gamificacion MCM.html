@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sincro-MCM Cósmico Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --space-bg:#030712; --panel-bg:rgba(17,24,39,0.95);
+  --neon-cyan:#00f2ff; --neon-magenta:#ff0077; --neon-green:#39ff14;
+  --neon-yellow:#fde047; --neon-purple:#a855f7; --slate-300:#cbd5e1;
+}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;}
+body{
+  font-family:'Rajdhani',sans-serif;background:var(--space-bg);color:#f8fafc;
+  display:flex;justify-content:center;align-items:center;min-height:100vh;
+  padding:10px;overflow-x:hidden;
+}
+.game-viewport{
+  width:100%;max-width:950px;background:var(--panel-bg);border:2px solid #1f2937;
+  border-radius:24px;padding:25px;box-shadow:0 0 40px rgba(0,242,255,0.15);
+}
+header{display:flex;justify-content:space-between;align-items:center;
+  border-bottom:2px solid #1f2937;padding-bottom:15px;margin-bottom:20px;}
+h1{font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--neon-cyan);
+  text-shadow:0 0 10px rgba(0,242,255,0.4);}
+.level-badge{font-family:'Orbitron',sans-serif;background:var(--neon-magenta);color:white;
+  padding:5px 15px;border-radius:30px;font-size:1rem;box-shadow:0 0 10px rgba(255,0,119,0.4);}
+.progress-track{background:#111827;height:8px;width:100%;border-radius:10px;
+  margin-bottom:20px;overflow:hidden;border:1px solid #374151;}
+.progress-bar{height:100%;width:5%;
+  background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));
+  transition:width 0.4s cubic-bezier(0.4,0,0.2,1);}
+.interface-box{background:rgba(31,41,55,0.4);border:1px solid #374151;border-radius:16px;
+  padding:20px;min-height:420px;display:flex;flex-direction:column;justify-content:space-between;}
+h2{font-family:'Orbitron',sans-serif;font-size:1.25rem;color:var(--neon-yellow);margin-bottom:10px;}
+p.instruction{font-size:1.15rem;color:var(--slate-300);line-height:1.4;margin-bottom:15px;}
+.interactive-canvas-container{position:relative;background:#090d16;border-radius:12px;
+  border:1px solid #4b5563;overflow:hidden;display:flex;justify-content:center;align-items:center;}
+canvas{display:block;background:#05070c;}
+.slider-zone{display:flex;flex-direction:column;gap:10px;background:#090d16;
+  padding:15px;border-radius:12px;border:1px solid #374151;}
+.slider-row{display:flex;align-items:center;justify-content:space-between;gap:15px;}
+.slider-label{font-family:'Orbitron';font-size:1rem;color:var(--neon-cyan);width:200px;}
+input[type="range"]{flex-grow:1;accent-color:var(--neon-cyan);cursor:pointer;}
+.slider-value{font-family:'Orbitron';font-size:1.2rem;width:50px;text-align:right;color:var(--neon-green);}
+.btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;
+  padding:12px 24px;font-family:'Orbitron',sans-serif;font-size:1.05rem;font-weight:bold;
+  border-radius:8px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;
+  box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(37,99,235,0.5);}
+.btn-action{width:100%;margin-top:15px;font-size:1.15rem;padding:14px;}
+.btn-capture{background:linear-gradient(135deg,#dc2626,#b91c1c);
+  box-shadow:0 4px 12px rgba(220,38,38,0.4);}
+.btn-capture:hover{box-shadow:0 6px 16px rgba(220,38,38,0.6);}
+.btn-purple{background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  box-shadow:0 4px 12px rgba(124,58,237,0.4);}
+.btn-purple:hover{box-shadow:0 6px 16px rgba(124,58,237,0.6);}
+.drop-grid-container{display:flex;gap:20px;align-items:center;justify-content:center;margin:15px 0;flex-wrap:wrap;}
+.drop-zone{border:2px dashed var(--neon-cyan);background:rgba(0,242,255,0.05);
+  min-width:90px;min-height:50px;border-radius:8px;display:flex;justify-content:center;
+  align-items:center;font-family:'Orbitron';font-size:1.4rem;padding:5px 10px;}
+.draggable-items{display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+.drag-item{background:#1f2937;border:1px solid #4b5563;padding:8px 16px;border-radius:6px;
+  font-family:'Orbitron';cursor:grab;font-size:1.1rem;color:var(--neon-yellow);
+  transition:all 0.2s;}
+.drag-item:hover{background:#374151;transform:translateY(-2px);}
+.input-box-central{display:flex;gap:15px;justify-content:center;align-items:center;margin-top:15px;flex-wrap:wrap;}
+input[type="number"]{background:#090d16;border:2px solid #4b5563;color:white;
+  font-family:'Orbitron';font-size:1.5rem;width:110px;text-align:center;
+  padding:8px;border-radius:8px;}
+input[type="number"]:focus{outline:none;border-color:var(--neon-cyan);}
+.feedback-area{min-height:60px;margin-top:15px;display:flex;align-items:center;
+  justify-content:center;font-size:1.15rem;font-weight:bold;text-align:center;line-height:1.4;padding:0 10px;}
+.success{color:var(--neon-green);text-shadow:0 0 8px rgba(57,255,20,0.2);}
+.error{color:var(--neon-magenta);text-shadow:0 0 8px rgba(255,0,119,0.2);}
+.mcm-mcd-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:10px 0;}
+.mcm-mcd-card{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:10px;text-align:center;}
+.mcm-mcd-card h4{font-family:'Orbitron';color:var(--neon-cyan);margin-bottom:5px;font-size:0.95rem;}
+.mcm-mcd-value{font-family:'Orbitron';font-size:1.8rem;color:var(--neon-yellow);}
+.hypothesis-box{background:rgba(168,85,247,0.1);border:1px solid var(--neon-purple);
+  border-radius:10px;padding:12px;margin:10px 0;text-align:center;}
+.hypothesis-box p{color:var(--neon-purple);font-family:'Orbitron';font-size:0.95rem;margin-bottom:8px;}
+.hypothesis-box input{width:180px;font-size:1.1rem;padding:6px;}
+.multi-choice{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.choice-btn{background:#1f2937;border:2px solid #4b5563;color:white;
+  padding:12px 22px;border-radius:10px;font-family:'Orbitron';font-size:1.1rem;
+  cursor:pointer;transition:all 0.2s;min-width:80px;}
+.choice-btn:hover{background:#374151;border-color:var(--neon-cyan);}
+.choice-btn.selected{background:var(--neon-cyan);color:#030712;border-color:var(--neon-cyan);}
+</style>
+</head>
+<body>
+
+<div class="game-viewport">
+  <header>
+    <h1 id="game-title">🛰️ SINCRO-MCM CÓSMICO</h1>
+    <div id="level-badge" class="level-badge">NIVEL 1/20</div>
+  </header>
+  <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+  <div class="interface-box">
+    <div>
+      <h2 id="stage-title">Cargando Misión...</h2>
+      <p id="stage-desc" class="instruction">Preparando los sistemas informáticos espaciales...</p>
+    </div>
+    <div id="interaction-sandbox"></div>
+    <div id="feedback" class="feedback-area"></div>
+  </div>
+</div>
+
+<script>
+// =========================================================
+// AUDIO SINTETIZADO
+// =========================================================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(preset){
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  if(preset==='hit'){
+    osc.frequency.setValueAtTime(440,audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1,audioCtx.currentTime);
+    osc.start(); osc.stop(audioCtx.currentTime+0.08);
+  } else if(preset==='success'){
+    osc.frequency.setValueAtTime(300,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(900,audioCtx.currentTime+0.3);
+    gain.gain.setValueAtTime(0.15,audioCtx.currentTime);
+    osc.start(); osc.stop(audioCtx.currentTime+0.3);
+  } else if(preset==='error'){
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(140,audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(60,audioCtx.currentTime+0.3);
+    gain.gain.setValueAtTime(0.2,audioCtx.currentTime);
+    osc.start(); osc.stop(audioCtx.currentTime+0.3);
+  } else if(preset==='reveal'){
+    osc.frequency.setValueAtTime(600,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200,audioCtx.currentTime+0.2);
+    gain.gain.setValueAtTime(0.08,audioCtx.currentTime);
+    osc.start(); osc.stop(audioCtx.currentTime+0.2);
+  }
+}
+
+// =========================================================
+// DEFINICIÓN DE LOS 20 NIVELES
+// Niveles 1-5: NUEVOS (comprensión conceptual del MCM)
+// Niveles 6-20: ANTIGUOS (1-15 originales)
+// =========================================================
+const levels = [
+
+  // =====================================================
+  // NIVEL 1 — Reconocer múltiplos (base conceptual)
+  // =====================================================
+  {
+    num:1,
+    title:"Detector de Múltiplos",
+    desc:"<b>Misión de exploración:</b> Un número base emite pulsos en el espacio. Haz clic <b>ÚNICAMENTE en los asteroides que sean múltiplos</b> del número indicado en pantalla. Observa el patrón: los múltiplos van en intervalos regulares. ¡Atrapa 6 correctos!",
+    type:"multiplos-detector",
+    hint:"Multiplica el número base por 1, 2, 3... Por ejemplo, si el base es 3, los múltiplos son 3, 6, 9, 12, 15..."
+  },
+
+  // =====================================================
+  // NIVEL 2 — Comparar patrones y detectar múltiplos comunes
+  // =====================================================
+  {
+    num:2,
+    title:"Comparador de Patrones: ¿Dónde coinciden?",
+    desc:"<b>Misión de observación:</b> Dos satélites emiten señales a intervalos distintos. En la línea de tiempo verás los pulsos de cada uno. <b>Haz clic sobre los puntos donde ambas señales coinciden</b> (múltiplos comunes). Encuentra los 3 primeros.",
+    type:"comparador-comunes",
+    a:4, b:6, maxTime:24,
+    hint:"Los múltiplos de 4 son: 4, 8, 12, 16, 20, 24. Los de 6: 6, 12, 18, 24. ¿Cuáles aparecen en AMBAS listas?"
+  },
+
+  // =====================================================
+  // NIVEL 3 — Formular conjetura: ¿cuál es el MÍNIMO?
+  // =====================================================
+  {
+    num:3,
+    title:"El Más Pequeño de los Comunes",
+    desc:"<b>Misión de conjetura:</b> Observa la gráfica con los múltiplos de 6 y 8. Los puntos <span style='color:#39ff14;'>verdes</span> marcan dónde coinciden. <b>Antes de ver la respuesta, formula tu conjetura:</b> ¿cuál es el múltiplo común MÁS PEQUEÑO? Selecciona tu respuesta y verifica.",
+    type:"conjetura-minimo",
+    a:6, b:8, maxTime:48,
+    options:[12, 24, 48],
+    correct:24,
+    hint:"Múltiplos de 6: 6, 12, 18, 24, 30, 36, 42, 48. Múltiplos de 8: 8, 16, 24, 32, 40, 48. El primero que aparece en AMBAS listas es el mínimo común múltiplo."
+  },
+
+  // =====================================================
+  // NIVEL 4 — Aplicación: equivalencia de fracciones
+  // =====================================================
+  {
+    num:4,
+    title:"Fábrica de Fracciones Equivalentes",
+    desc:"<b>Misión de aplicación:</b> Para sumar fracciones necesitamos el mismo denominador. El denominador común más eficiente es el <b>m.c.m. de los denominadores</b>. Arrastra el denominador común correcto para igualar las fracciones 1/4 y 1/6.",
+    type:"fracciones-mcm",
+    denomA:4, denomB:6,
+    items:["12","24","10","16"],
+    correctAnswer:"12",
+    hint:"El m.c.m. de 4 y 6 es 12. Con denominador 12: 1/4 = 3/12 y 1/6 = 2/12. ¡Con 24 también funcionaría, pero 12 es el MENOR!"
+  },
+
+  // =====================================================
+  // NIVEL 5 — Sincronización de eventos reales
+  // =====================================================
+  {
+    num:5,
+    title:"Organizador de Eventos Sincronizados",
+    desc:"<b>Misión de contexto real:</b> En la estación espacial hay 3 sistemas que se activan periódicamente: Luces cada 6s, Alarmas cada 8s y Escudos cada 12s. Los ingenieros necesitan saber <b>cada cuántos segundos se activan los TRES a la vez</b>. Calcula el m.c.m. de los 3 tiempos.",
+    type:"input-calc",
+    correctAnswer:24,
+    hint:"Halla el m.c.m. de 6, 8 y 12. Descompón: 6=2×3, 8=2³, 12=2²×3. m.c.m. = 2³×3 = 24 segundos."
+  },
+
+  // =====================================================
+  // NIVELES 6-8 — Antiguos 1, 2, 3
+  // =====================================================
+  {
+    num:6,
+    title:"Mecánica de Ritmo: Captura de Fase Coincidente",
+    desc:"<b>Exclusivo Digital:</b> El Satélite 1 pulsa cada 2s y el Satélite 2 cada 3s. Presiona el botón rojo cuando la barra de escaneo blanca coincida con la <b>LÍNEA DE SINCRO (6s)</b>.",
+    type:"canvas-scan", intervals:[2,3], targetTime:6, maxTime:12,
+    hint:"Espera a que el escáner se alinee con la franja amarilla del segundo 6."
+  },
+  {
+    num:7,
+    title:"Calibrador Dinámico: Sincronía Visual de Frecuencias",
+    desc:"<b>Exclusivo Digital:</b> Un satélite maestro emite pulsos cada <b>4 segundos</b>. Mueve el slider hasta que la primera coincidencia de ambos pulsos ocurra exactamente en el <b>segundo 12</b>.",
+    type:"slider-sync", masterInterval:4, correctSliderValue:3, maxTime:12,
+    hint:"El maestro pulsa en 4, 8 y 12. Si ajustas el segundo a 3s, pulsa en 3, 6, 9 y 12. ¡Coinciden en 12!"
+  },
+  {
+    num:8,
+    title:"Filtro de Datos: Números Primos en Cascada",
+    desc:"<b>Exclusivo Digital:</b> ¡Lluvia de datos! Haz clic sobre las esferas que contengan <b>ÚNICAMENTE Números Primos</b>. ¡Consigue 5 aciertos!",
+    type:"canvas-rain", mode:"primos",
+    hint:"Haz clic en 2, 3, 5, 7, 11... Evita compuestos como 4, 6, 8, 9."
+  },
+
+  // =====================================================
+  // NIVEL 9 — Antiguo 4
+  // =====================================================
+  {
+    num:9,
+    title:"Escáner de Divisibilidad: El Filtro del 3",
+    desc:"<b>Exclusivo Digital:</b> Atrapa en el aire las esferas numéricas divisibles por 3. ¡Logra 5 aciertos!",
+    type:"canvas-rain", mode:"div3",
+    hint:"Suma los dígitos: en 15 → 1+5=6, y 6 es múltiplo de 3, así que 15 también."
+  },
+
+  // =====================================================
+  // NIVELES 10-11 — Antiguos 5, 6
+  // =====================================================
+  {
+    num:10,
+    title:"Procesador de Fusión: Compactador de Potencias",
+    desc:"<b>Exclusivo Digital:</b> Arrastra el bloque correcto hacia la cámara de fusión para resolver: $2^3 \\times 5$.",
+    type:"drag-drop", equationText:"2³ × 5 = ", items:["30","40","20","50"], correctAnswer:"40",
+    hint:"2³ = 8. Luego 8 × 5 = 40."
+  },
+  {
+    num:11,
+    title:"Simulador de Tablero: Construcción del m.c.m.",
+    desc:"<b>Exclusivo Digital:</b> Arrastra el divisor primo menor correcto para iniciar la simplificación simultánea de 8 y 12.",
+    type:"drag-drop-algo", numA:8, numB:12, items:["2","3","5"], correctAnswer:"2",
+    hint:"Ambos son pares, así que el primo menor que los divide es 2."
+  },
+
+  // =====================================================
+  // NIVELES 12-14 — Antiguos 7, 8, 9
+  // =====================================================
+  {
+    num:12,
+    title:"La Red Multiplicadora de Factores",
+    desc:"<b>Exclusivo Digital:</b> Tras aplicar el algoritmo para 12 y 18, se obtuvo $2 \\times 2 \\times 3 \\times 3$. Introduce el producto final.",
+    type:"input-calc", correctAnswer:36,
+    hint:"2×2=4, 4×3=12, 12×3=36."
+  },
+  {
+    num:13,
+    title:"Simulador de Tráfico: Cruce de 2 Variables",
+    desc:"<b>Exclusivo Digital:</b> Cápsula A tarda 6s y cápsula B tarda 8s. ¿En qué segundo se encuentran juntas?",
+    type:"input-calc", correctAnswer:24,
+    hint:"m.c.m.(6,8) = 24."
+  },
+  {
+    num:14,
+    title:"Sincronizador de Engranajes Dinámicos (3 Variables)",
+    desc:"<b>Exclusivo Digital:</b> Tres piezas rotan a 4, 6 y 8 revoluciones. Introduce el m.c.m. global.",
+    type:"input-calc", correctAnswer:24,
+    hint:"m.c.m.(4,6,8) = 24."
+  },
+
+  // =====================================================
+  // NIVEL 15 — Antiguo 10
+  // =====================================================
+  {
+    num:15,
+    title:"El Hiper-Conector: Red Estelar Maestra",
+    desc:"<b>Exclusivo Digital:</b> Tres antenas emiten pulsos cada 12s, 15s y 20s. Introduce el m.c.m. maestro.",
+    type:"input-calc", correctAnswer:60,
+    hint:"12=2²·3, 15=3·5, 20=2²·5 → m.c.m. = 2²·3·5 = 60."
+  },
+
+  // =====================================================
+  // NIVELES 16-20 — Antiguos 11-15
+  // =====================================================
+  {
+    num:16,
+    title:"Laboratorio de Fusión: MCM y MCD Simultáneos",
+    desc:"<b>Exclusivo Digital:</b> Observa los valores y luego introduce el <b>producto</b> de m.c.m. y m.c.d. de 12 y 18.",
+    type:"input-calc", correctAnswer:216,
+    hint:"m.c.m.(12,18)=36 y m.c.d.(12,18)=6. Producto = 216. Coincide con 12×18=216."
+  },
+  {
+    num:17,
+    title:"El Enigma de Leonhard Euler: Relación MCM-MCD",
+    desc:"<b>Exclusivo Digital:</b> Euler demostró que <b>mcm(a,b) × mcd(a,b) = a × b</b>. Observa los valores de 15 y 20 y calcula el producto.",
+    type:"input-calc", correctAnswer:300,
+    hint:"60 × 5 = 300. Y 15 × 20 = 300. ¡La relación de Euler se cumple!"
+  },
+  {
+    num:18,
+    title:"Sincronizador de Tres Antenas con MCD Oculto",
+    desc:"<b>Exclusivo Digital:</b> Tres antenas emiten pulsos cada 8, 12 y 20 segundos. Observa el m.c.d. e introduce el m.c.m.",
+    type:"input-calc", correctAnswer:120,
+    hint:"8=2³, 12=2²·3, 20=2²·5 → m.c.m. = 2³·3·5 = 120."
+  },
+  {
+    num:19,
+    title:"Desafío de Ingeniería: MCM con Números Grandes",
+    desc:"<b>Exclusivo Digital:</b> Dos engranajes giran cada 24 y 36 segundos. Introduce el m.c.m.",
+    type:"input-calc", correctAnswer:72,
+    hint:"24=2³·3, 36=2²·3² → m.c.m. = 2³·3² = 8×9 = 72."
+  },
+  {
+    num:20,
+    title:"La Gran Prueba de Euler: Producto Total",
+    desc:"<b>Exclusivo Digital:</b> Reto final. Observa los valores para 6, 10 y 15 e introduce el producto total 6 × 10 × 15.",
+    type:"input-calc", correctAnswer:900,
+    hint:"6 × 10 = 60, y 60 × 15 = 900."
+  }
+];
+
+// =========================================================
+// ESTADO GLOBAL
+// =========================================================
+let currentLevelIdx = 0;
+let animationId = null;
+let canvas, ctx;
+let state = {};
+
+// =========================================================
+// CONTROLADOR PRINCIPAL: initLevel()
+// =========================================================
+function initLevel(){
+  if(animationId) cancelAnimationFrame(animationId);
+  const lvl = levels[currentLevelIdx];
+
+  document.getElementById('level-badge').innerText = `NIVEL ${lvl.num}/20`;
+  document.getElementById('progress-bar').style.width = `${(lvl.num/levels.length)*100}%`;
+  document.getElementById('stage-title').innerText = lvl.title;
+  document.getElementById('stage-desc').innerHTML = lvl.desc;
+  document.getElementById('feedback').innerHTML = '';
+
+  const container = document.getElementById('interaction-sandbox');
+  container.innerHTML = '';
+
+  // ==========================================
+  // NIVEL 1: Detector de múltiplos
+  // ==========================================
+  if(lvl.type === "multiplos-detector"){
+    container.innerHTML = `
+      <div class="interactive-canvas-container">
+        <canvas id="gameCanvas" width="850" height="320"></canvas>
+      </div>`;
+    setupMultiplosDetector(lvl);
+  }
+  // ==========================================
+  // NIVEL 2: Comparador de comunes
+  // ==========================================
+  else if(lvl.type === "comparador-comunes"){
+    container.innerHTML = `
+      <div class="interactive-canvas-container">
+        <canvas id="gameCanvas" width="850" height="240"></canvas>
+      </div>`;
+    setupComparadorComunes(lvl);
+  }
+  // ==========================================
+  // NIVEL 3: Conjetura del mínimo
+  // ==========================================
+  else if(lvl.type === "conjetura-minimo"){
+    let opcionesHtml = lvl.options.map((op,i)=>
+      `<button class="choice-btn" id="opt-${i}" onclick="selectConjetura(${i},${op})">${op}</button>`
+    ).join('');
+    container.innerHTML = `
+      <div class="interactive-canvas-container" style="margin-bottom:12px;">
+        <canvas id="gameCanvas" width="850" height="200"></canvas>
+      </div>
+      <div class="hypothesis-box">
+        <p>🤔 ¿CUÁL ES EL MÍNIMO COMÚN MÚLTIPLO?</p>
+        <div class="multi-choice" id="opciones-minimo">${opcionesHtml}</div>
+      </div>`;
+    setupConjeturaMinimo(lvl);
+  }
+  // ==========================================
+  // NIVEL 4: Fracciones equivalentes
+  // ==========================================
+  else if(lvl.type === "fracciones-mcm"){
+    let itemsHtml = lvl.items.map(it=>
+      `<div class="drag-item" draggable="true" ondragstart="drag(event)" id="fitem-${it}">${it}</div>`
+    ).join('');
+    container.innerHTML = `
+      <div class="drop-grid-container">
+        <div style="font-family:'Orbitron';font-size:1.4rem;color:white;text-align:center;">
+          <div>1/4 &nbsp;+&nbsp; 1/6</div>
+          <div style="font-size:1rem;color:var(--neon-cyan);margin-top:8px;">= ? / DENOMINADOR COMÚN</div>
+        </div>
+        <div class="drop-zone" id="main-drop" ondragover="allowDrop(event)" ondrop="drop(event)">?</div>
+      </div>
+      <div class="draggable-items">${itemsHtml}</div>
+      <button class="btn btn-action" onclick="evaluateFracciones()">Verificar Denominador</button>`;
+    state.draggedValue = null;
+  }
+  // ==========================================
+  // NIVELES con input numérico
+  // ==========================================
+  else if(lvl.type === "input-calc"){
+    let extraHtml = '';
+    if(lvl.num === 5){
+      extraHtml = `
+        <div class="mcm-mcd-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="mcm-mcd-card"><h4>💡 Luces</h4><div class="mcm-mcd-value">6s</div></div>
+          <div class="mcm-mcd-card"><h4>🚨 Alarmas</h4><div class="mcm-mcd-value">8s</div></div>
+          <div class="mcm-mcd-card"><h4>🛡️ Escudos</h4><div class="mcm-mcd-value">12s</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">¿Cada cuántos segundos coinciden los TRES?</p>`;
+    } else if(lvl.num === 16){
+      extraHtml = `
+        <div class="mcm-mcd-grid">
+          <div class="mcm-mcd-card"><h4>m.c.m.(12,18)</h4><div class="mcm-mcd-value">36</div></div>
+          <div class="mcm-mcd-card"><h4>m.c.d.(12,18)</h4><div class="mcm-mcd-value">6</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">Introduce el producto de ambos:</p>`;
+    } else if(lvl.num === 17){
+      extraHtml = `
+        <div class="mcm-mcd-grid">
+          <div class="mcm-mcd-card"><h4>m.c.m.(15,20)</h4><div class="mcm-mcd-value">60</div></div>
+          <div class="mcm-mcd-card"><h4>m.c.d.(15,20)</h4><div class="mcm-mcd-value">5</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">Producto (Relación de Euler):</p>`;
+    } else if(lvl.num === 18){
+      extraHtml = `
+        <div class="mcm-mcd-grid">
+          <div class="mcm-mcd-card"><h4>Números</h4><div class="mcm-mcd-value">8, 12, 20</div></div>
+          <div class="mcm-mcd-card"><h4>m.c.d.(8,12,20)</h4><div class="mcm-mcd-value">4</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">Introduce el m.c.m. de los tres:</p>`;
+    } else if(lvl.num === 19){
+      extraHtml = `
+        <div class="mcm-mcd-grid">
+          <div class="mcm-mcd-card"><h4>Números</h4><div class="mcm-mcd-value">24, 36</div></div>
+          <div class="mcm-mcd-card"><h4>m.c.d.(24,36)</h4><div class="mcm-mcd-value">12</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">Introduce el m.c.m.:</p>`;
+    } else if(lvl.num === 20){
+      extraHtml = `
+        <div class="mcm-mcd-grid">
+          <div class="mcm-mcd-card"><h4>Números</h4><div class="mcm-mcd-value">6, 10, 15</div></div>
+          <div class="mcm-mcd-card"><h4>m.c.m.(6,10,15)</h4><div class="mcm-mcd-value">30</div></div>
+        </div>
+        <p style="text-align:center;color:var(--neon-yellow);margin:10px 0;">Introduce el producto total:</p>`;
+    }
+    container.innerHTML = `${extraHtml}
+      <div class="input-box-central">
+        <input type="number" id="calc-input" placeholder="?">
+        <button class="btn" onclick="evaluateInputCalc()">Introducir Código</button>
+      </div>`;
+  }
+  // ==========================================
+  // MECÁNICAS HEREDADAS DE LOS NIVELES ANTIGUOS
+  // ==========================================
+  else if(lvl.type === "canvas-scan"){
+    container.innerHTML = `<div class="interactive-canvas-container"><canvas id="gameCanvas" width="850" height="220"></canvas></div>
+      <button class="btn btn-action btn-capture" onclick="evaluateCaptureScan()">⚡ CAPTURAR COINCIDENCIA</button>`;
+    setupCanvasScan(lvl);  }
+  // ==========================================
+  // MECÁNICAS HEREDADAS
+  // ==========================================
+  else if(lvl.type === "slider-sync"){
+    container.innerHTML = `
+      <div class="interactive-canvas-container" style="margin-bottom:15px;"><canvas id="gameCanvas" width="850" height="200"></canvas></div>
+      <div class="slider-zone">
+        <div class="slider-row">
+          <span class="slider-label">Frecuencia Satélite 2:</span>
+          <input type="range" id="freqSlider" min="1" max="6" value="1" oninput="updateSliderSync()">
+          <span id="sliderVal" class="slider-value">1s</span>
+        </div>
+      </div>
+      <button class="btn btn-action" onclick="evaluateSliderSync()">Validar Sincronización</button>`;
+    setupSliderSync(lvl);
+  }
+  else if(lvl.type === "canvas-rain"){
+    container.innerHTML = `<div class="interactive-canvas-container"><canvas id="gameCanvas" width="850" height="320"></canvas></div>`;
+    setupCanvasRain(lvl);
+  }
+  else if(lvl.type === "drag-drop"){
+    let itemsHtml = lvl.items.map(it=>`<div class="drag-item" draggable="true" ondragstart="drag(event)" id="ditem-${it}">${it}</div>`).join('');
+    container.innerHTML = `
+      <div class="drop-grid-container">
+        <div style="font-family:'Orbitron';font-size:1.6rem;color:white;">${lvl.equationText}</div>
+        <div class="drop-zone" id="main-drop" ondragover="allowDrop(event)" ondrop="drop(event)">?</div>
+      </div>
+      <div class="draggable-items">${itemsHtml}</div>
+      <button class="btn btn-action" onclick="evaluateDragDrop()">Procesar Fusión</button>`;
+    state.draggedValue = null;
+  }
+  else if(lvl.type === "drag-drop-algo"){
+    let itemsHtml = lvl.items.map(it=>`<div class="drag-item" draggable="true" ondragstart="drag(event)" id="aitem-${it}">${it}</div>`).join('');
+    container.innerHTML = `
+      <div style="display:flex;justify-content:center;gap:40px;align-items:center;margin:15px 0;">
+        <table style="font-family:'Orbitron';font-size:1.5rem;border-collapse:collapse;text-align:center;width:200px;">
+          <tr>
+            <td style="padding:10px;border-right:2px solid var(--neon-cyan);">${lvl.numA}</td>
+            <td style="padding:10px;border-right:2px solid var(--neon-cyan);">${lvl.numB}</td>
+            <td class="drop-zone" id="main-drop" ondragover="allowDrop(event)" ondrop="drop(event)">?</td>
+          </tr>
+        </table>
+      </div>
+      <div class="draggable-items">${itemsHtml}</div>
+      <button class="btn btn-action" onclick="evaluateAlgoDrop()">Ejecutar Algoritmo</button>`;
+    state.draggedValue = null;
+  }
+}
+
+// =========================================================
+// NIVEL 1: Detector de Múltiplos
+// =========================================================
+function setupMultiplosDetector(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.score = 0;
+  state.base = Math.floor(Math.random()*4)+2; // base entre 2 y 5
+  state.asteroides = [];
+  state.spawnTimer = 0;
+  state.baseFijo = state.base; // mantener base durante el nivel
+
+  canvas.onclick = function(e){
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    for(let i=state.asteroides.length-1; i>=0; i--){
+      let a = state.asteroides[i];
+      let dist = Math.hypot(a.x-mouseX, a.y-mouseY);
+      if(dist <= a.r){
+        let esMultiplo = (a.valor % state.baseFijo === 0);
+        if(esMultiplo){
+          state.score++;
+          playSound('hit');
+          state.asteroides.splice(i,1);
+          if(state.score >= 6){
+            cancelAnimationFrame(animationId);
+            canvas.onclick = null;
+            showFeedback(true, `¡Excelente! Reconociste 6 múltiplos de ${state.baseFijo}. Los múltiplos van en intervalos regulares: ${state.baseFijo}, ${state.baseFijo*2}, ${state.baseFijo*3}...`);
+            triggerNextLevel();
+          }
+        } else {
+          playSound('error');
+          showFeedback(false, `Ese número NO es múltiplo de ${state.baseFijo}. Recuerda: ${state.baseFijo}×1=${state.baseFijo}, ${state.baseFijo}×2=${state.baseFijo*2}...`);
+        }
+        break;
+      }
+    }
+  };
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Panel superior con el número base
+    ctx.fillStyle = 'rgba(0,242,255,0.1)';
+    ctx.fillRect(0,0,canvas.width,60);
+    ctx.fillStyle = '#00f2ff';
+    ctx.font = "bold 22px Orbitron";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`MÚLTIPLOS DE ${state.baseFijo}`, canvas.width/2, 30);
+
+    // Score
+    ctx.fillStyle = '#39ff14';
+    ctx.font = "bold 16px Orbitron";
+    ctx.textAlign = "left";
+    ctx.fillText(`ATRAPADOS: ${state.score}/6`, 20, 30);
+
+    // Spawn
+    state.spawnTimer++;
+    if(state.spawnTimer > 45 && state.asteroides.length < 7){
+      state.spawnTimer = 0;
+      // 50% múltiplos, 50% no múltiplos
+      let esMultiplo = Math.random() < 0.5;
+      let valor;
+      if(esMultiplo){
+        valor = state.baseFijo * (Math.floor(Math.random()*6)+1);
+      } else {
+        valor = Math.floor(Math.random()*25)+2;
+        while(valor % state.baseFijo === 0) valor = Math.floor(Math.random()*25)+2;
+      }
+      state.asteroides.push({
+        x: Math.random()*(canvas.width-100)+50,
+        y: -30,
+        r: 26,
+        valor: valor,
+        vel: Math.random()*1.2+0.8
+      });
+    }
+
+    // Dibujar asteroides
+    state.asteroides.forEach(a=>{
+      a.y += a.vel;
+      let grad = ctx.createRadialGradient(a.x-6,a.y-6,3,a.x,a.y,a.r);
+      grad.addColorStop(0,'#334155');
+      grad.addColorStop(1,'#0f172a');
+      ctx.fillStyle = grad;
+      ctx.strokeStyle = '#a855f7';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(a.x,a.y,a.r,0,Math.PI*2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = "bold 18px Orbitron";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(a.valor, a.x, a.y);
+    });
+
+    state.asteroides = state.asteroides.filter(a=>a.y < canvas.height+40);
+
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+// =========================================================
+// NIVEL 2: Comparador de múltiplos comunes
+// =========================================================
+function setupComparadorComunes(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.encontrados = 0;
+  state.clicados = new Set();
+  state.metaClics = [12, 24, 36]; // comunes dentro de maxTime=24 solo 12 y 24... ajustamos
+
+  // Recalcular comunes válidos según maxTime
+  let comunes = [];
+  for(let t=1; t<=lvl.maxTime; t++){
+    if(t % lvl.a === 0 && t % lvl.b === 0) comunes.push(t);
+  }
+  state.comunes = comunes;
+  state.totalComunes = comunes.length;
+
+  canvas.onclick = function(e){
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Detectar clic sobre un punto de la línea
+    let aciertosEsteClick = false;
+    for(let t=1; t<=lvl.maxTime; t++){
+      let x = 130 + (t/lvl.maxTime)*(canvas.width-180);
+      // Si es múltiplo de a (carril superior y=90) o de b (carril inferior y=150)
+      if(t % lvl.a === 0){
+        if(Math.hypot(x-mouseX, 90-mouseY) < 18){
+          if(state.clicados.has(t)) return;
+          if(state.comunes.includes(t)){
+            state.clicados.add(t);
+            state.encontrados++;
+            playSound('hit');
+            aciertosEsteClick = true;
+            if(state.encontrados >= state.totalComunes){
+              cancelAnimationFrame(animationId);
+              canvas.onclick = null;
+              showFeedback(true, `¡Descubriste TODOS los múltiplos comunes de ${lvl.a} y ${lvl.b}: ${state.comunes.join(', ')}. El MENOR de ellos es el MCM = ${state.comunes[0]}.`);
+              triggerNextLevel();
+            } else {
+              showFeedback(true, `¡Correcto! El ${t} es múltiplo de ${lvl.a} y de ${lvl.b}. Faltan ${state.totalComunes - state.encontrados}.`);
+            }
+          } else {
+            playSound('error');
+            showFeedback(false, `El ${t} es múltiplo de ${lvl.a}, pero NO de ${lvl.b}. Solo marca donde coinciden AMBOS.`);
+          }
+          return;
+        }
+      }
+      if(t % lvl.b === 0){
+        if(Math.hypot(x-mouseX, 150-mouseY) < 18){
+          if(state.clicados.has(t)) return;
+          if(state.comunes.includes(t)){
+            state.clicados.add(t);
+            state.encontrados++;
+            playSound('hit');
+            aciertosEsteClick = true;
+            if(state.encontrados >= state.totalComunes){
+              cancelAnimationFrame(animationId);
+              canvas.onclick = null;
+              showFeedback(true, `¡Descubriste TODOS los múltiplos comunes de ${lvl.a} y ${lvl.b}: ${state.comunes.join(', ')}. El MENOR es el MCM = ${state.comunes[0]}.`);
+              triggerNextLevel();
+            } else {
+              showFeedback(true, `¡Correcto! El ${t} es múltiplo de ambos. Faltan ${state.totalComunes - state.encontrados}.`);
+            }
+          } else {
+            playSound('error');
+            showFeedback(false, `El ${t} es múltiplo de ${lvl.b}, pero NO de ${lvl.a}. Solo marca donde coinciden AMBOS.`);
+          }
+          return;
+        }
+      }
+    }
+  };
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = '#a855f7';
+    ctx.font = "bold 14px Orbitron";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`Múltiplos de ${lvl.a}`, 15, 90);
+    ctx.fillText(`Múltiplos de ${lvl.b}`, 15, 150);
+
+    // Carriles
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(130,90); ctx.lineTo(canvas.width-50,90); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(130,150); ctx.lineTo(canvas.width-50,150); ctx.stroke();
+
+    // Puntos
+    for(let t=1; t<=lvl.maxTime; t++){
+      let x = 130 + (t/lvl.maxTime)*(canvas.width-180);
+      let esComun = (t % lvl.a === 0 && t % lvl.b === 0);
+      let yaClicado = state.clicados.has(t);
+
+      if(t % lvl.a === 0){
+        ctx.fillStyle = yaClicado ? '#39ff14' : (esComun ? '#fde047' : '#4b5563');
+        ctx.beginPath(); ctx.arc(x, 90, 9, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = "10px Orbitron"; ctx.textAlign = "center";
+        ctx.fillText(t, x, 90-18);
+      }
+      if(t % lvl.b === 0){
+        ctx.fillStyle = yaClicado ? '#39ff14' : (esComun ? '#fde047' : '#4b5563');
+        ctx.beginPath(); ctx.arc(x, 150, 9, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = "10px Orbitron"; ctx.textAlign = "center";
+        ctx.fillText(t, x, 150+22);
+      }
+    }
+
+    // Meta
+    ctx.fillStyle = '#00f2ff';
+    ctx.font = "bold 13px Orbitron";
+    ctx.textAlign = "right";
+    ctx.fillText(`Clic en coincidencias: ${state.encontrados}/${state.totalComunes}`, canvas.width-15, 20);
+
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+// =========================================================
+// NIVEL 3: Conjetura del mínimo
+// =========================================================
+function setupConjeturaMinimo(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.seleccion = null;
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Carril A
+    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(130,70); ctx.lineTo(canvas.width-50,70); ctx.stroke();
+    ctx.fillStyle = '#a855f7'; ctx.font = "bold 13px Orbitron"; ctx.textAlign="left"; ctx.textBaseline="middle";
+    ctx.fillText(`Múltiplos de ${lvl.a}`, 15, 70);
+
+    // Carril B
+    ctx.beginPath(); ctx.moveTo(130,140); ctx.lineTo(canvas.width-50,140); ctx.stroke();
+    ctx.fillStyle = '#ff0077';
+    ctx.fillText(`Múltiplos de ${lvl.b}`, 15, 140);
+
+    // Puntos
+    for(let t=1; t<=lvl.maxTime; t++){
+      let x = 130 + (t/lvl.maxTime)*(canvas.width-180);
+      let esComun = (t % lvl.a === 0 && t % lvl.b === 0);
+      if(t % lvl.a === 0){
+        ctx.fillStyle = esComun ? '#39ff14' : '#4b5563';
+        ctx.beginPath(); ctx.arc(x, 70, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = "9px Orbitron"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText(t, x, 70-18);
+      }
+      if(t % lvl.b === 0){
+        ctx.fillStyle = esComun ? '#39ff14' : '#4b5563';
+        ctx.beginPath(); ctx.arc(x, 140, 8, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = "9px Orbitron"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText(t, x, 140+22);
+      }
+    }
+
+    ctx.fillStyle = '#39ff14'; ctx.font = "bold 13px Orbitron"; ctx.textAlign="right"; ctx.textBaseline="middle";
+    ctx.fillText("Los puntos VERDES son múltiplos comunes", canvas.width-15, 20);
+
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+function selectConjetura(idx, valor){
+  state.seleccion = valor;
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.classList.toggle('selected', i===idx);
+  });
+  // Auto-evaluar
+  const lvl = levels[currentLevelIdx];
+  if(valor === lvl.correct){
+    cancelAnimationFrame(animationId);
+    showFeedback(true, `¡Correcto! El MCM de ${lvl.a} y ${lvl.b} es ${valor}. Es el PRIMER número que aparece en ambas listas. Los anteriores no eran comunes, y los mayores sí son comunes pero NO son mínimos.`);
+    triggerNextLevel();
+  } else {
+    playSound('error');
+    showFeedback(false, `El ${valor} SÍ es múltiplo común, pero no es el MÍNIMO. Busca el primero donde ambas listas coinciden. Pista: ${lvl.hint}`);
+    state.seleccion = null;
+    document.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));
+  }
+}
+
+// =========================================================
+// NIVEL 4: Fracciones equivalentes (drag & drop)
+// =========================================================
+function evaluateFracciones(){
+  const lvl = levels[currentLevelIdx];
+  if(state.draggedValue === lvl.correctAnswer){
+    playSound('success');
+    showFeedback(true, `¡Perfecto! El m.c.m. de ${lvl.denomA} y ${lvl.denomB} es ${lvl.correctAnswer}. Con denominador 12: 1/4 = 3/12 y 1/6 = 2/12. Así se pueden sumar: 3/12 + 2/12 = 5/12. Usar 24 también funcionaría, ¡pero 12 es el MENOR!`);
+    triggerNextLevel();
+  } else {
+    playSound('error');
+    showFeedback(false, `El denominador ${state.draggedValue} no es el m.c.m. Recuerda: debe ser múltiplo de 4 Y de 6, y el más pequeño posible. Pista: ${lvl.hint}`);
+  }
+}
+
+// =========================================================
+// NIVEL 6: Canvas Scan (heredado)
+// =========================================================
+function setupCanvasScan(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.scanX = 150;
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const graphWidth = canvas.width - 200;
+    const startX = 150;
+    let targetX = startX + (lvl.targetTime/lvl.maxTime)*graphWidth;
+
+    ctx.fillStyle = 'rgba(253,224,71,0.15)';
+    ctx.fillRect(targetX-15,20,30,canvas.height-60);
+    ctx.strokeStyle = 'rgba(253,224,71,0.6)'; ctx.lineWidth = 1; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(targetX,20); ctx.lineTo(targetX,canvas.height-40); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#fde047'; ctx.font = "bold 11px Orbitron"; ctx.textAlign="center";
+    ctx.fillText("SINCRO " + lvl.targetTime + "s", targetX, 15);
+
+    lvl.intervals.forEach((interval, idx)=>{
+      let y = 60 + idx*80;
+      ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(startX,y); ctx.lineTo(canvas.width-50,y); ctx.stroke();
+      ctx.fillStyle = '#00f2ff'; ctx.font = "bold 14px Orbitron"; ctx.textAlign="left";
+      ctx.fillText(`Satélite ${idx+1} (${interval}s)`, 20, y+5);
+      for(let t=interval; t<=lvl.maxTime; t+=interval){
+        let cx = startX + (t/lvl.maxTime)*graphWidth;
+        ctx.fillStyle = (t===lvl.targetTime) ? '#fde047' : '#4b5563';
+        ctx.beginPath(); ctx.arc(cx,y,7,0,Math.PI*2); ctx.fill();
+        if(Math.abs(state.scanX - cx) < 6){
+          ctx.fillStyle = '#39ff14';
+          ctx.beginPath(); ctx.arc(cx,y,10,0,Math.PI*2); ctx.fill();
+        }
+      }
+    });
+
+    ctx.fillStyle = '#64748b'; ctx.font = "12px Orbitron"; ctx.textAlign="center";
+    for(let i=0;i<=lvl.maxTime;i++){
+      let cx = startX + (i/lvl.maxTime)*graphWidth;
+      ctx.fillText(`${i}s`, cx, canvas.height-15);
+      ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx,canvas.height-35); ctx.lineTo(cx,canvas.height-30); ctx.stroke();
+    }
+
+    state.scanX += 1.4;
+    if(state.scanX > canvas.width-50) state.scanX = startX;
+
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+    ctx.shadowBlur = 10; ctx.shadowColor = '#ffffff';
+    ctx.beginPath(); ctx.moveTo(state.scanX,20); ctx.lineTo(state.scanX,canvas.height-40); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+function evaluateCaptureScan(){
+  const lvl = levels[currentLevelIdx];
+  const graphWidth = canvas.width - 200;
+  const startX = 150;
+  let targetX = startX + (lvl.targetTime/lvl.maxTime)*graphWidth;
+  if(Math.abs(state.scanX - targetX) <= 15){
+    cancelAnimationFrame(animationId);
+    showFeedback(true, `¡Sincronía capturada! Coinciden en el segundo ${lvl.targetTime}.`);
+    triggerNextLevel();
+  } else {
+    showFeedback(false, `Desfase temporal. Pista: ${lvl.hint}`);
+  }
+}
+
+// =========================================================
+// NIVEL 7: Slider Sync (heredado)
+// =========================================================
+function setupSliderSync(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.currentSliderVal = 1;
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let graphWidth = canvas.width - 200;
+    let startX = 150;
+
+    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(startX,60); ctx.lineTo(canvas.width-50,60); ctx.stroke();
+    ctx.fillStyle = '#ff0077'; ctx.font = "bold 13px Orbitron"; ctx.textAlign="left";
+    ctx.fillText("Satélite Maestro (4s)", 20, 65);
+    for(let t=4; t<=lvl.maxTime; t+=4){
+      let cx = startX + (t/lvl.maxTime)*graphWidth;
+      ctx.fillStyle = '#ff0077'; ctx.beginPath(); ctx.arc(cx,60,7,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.font = "10px Orbitron"; ctx.textAlign="center";
+      ctx.fillText(t+'s', cx, 45);
+    }
+
+    ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(startX,140); ctx.lineTo(canvas.width-50,140); ctx.stroke();
+    ctx.fillStyle = '#00f2ff'; ctx.font = "bold 13px Orbitron"; ctx.textAlign="left";
+    ctx.fillText(`Satélite Ajustable (${state.currentSliderVal}s)`, 20, 145);
+    for(let t=state.currentSliderVal; t<=lvl.maxTime; t+=state.currentSliderVal){
+      let cx = startX + (t/lvl.maxTime)*graphWidth;
+      ctx.fillStyle = '#00f2ff'; ctx.beginPath(); ctx.arc(cx,140,7,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.font = "10px Orbitron"; ctx.textAlign="center";
+      ctx.fillText(t+'s', cx, 125);
+      if(state.currentSliderVal === lvl.correctSliderValue && t === lvl.maxTime){
+        ctx.strokeStyle = '#39ff14'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx,140,13+Math.sin(Date.now()/100)*3,0,Math.PI*2); ctx.stroke();
+      }
+    }
+
+    let goalX = startX + graphWidth;
+    ctx.strokeStyle = '#fde047'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(goalX,20); ctx.lineTo(goalX,180); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#fde047'; ctx.font = "bold 12px Orbitron"; ctx.textAlign="center";
+    ctx.fillText("META: " + lvl.maxTime + "s", goalX, 15);
+
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+function updateSliderSync(){
+  let val = parseInt(document.getElementById('freqSlider').value);
+  state.currentSliderVal = val;
+  document.getElementById('sliderVal').innerText = `${val}s`;
+}
+
+function evaluateSliderSync(){
+  const lvl = levels[currentLevelIdx];
+  if(state.currentSliderVal === lvl.correctSliderValue){
+    cancelAnimationFrame(animationId);
+    showFeedback(true, "¡Perfecto! Ajustaste la frecuencia para coincidir en el segundo 12.");
+    triggerNextLevel();
+  } else {
+    showFeedback(false, `Las fases no coinciden en la meta. Pista: ${lvl.hint}`);
+  }
+}
+
+// =========================================================
+// NIVELES 8-9: Canvas Rain (heredado)
+// =========================================================
+function setupCanvasRain(lvl){
+  canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+  state.score = 0;
+  state.particles = [];
+
+  canvas.onclick = function(e){
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    for(let i=state.particles.length-1; i>=0; i--){
+      let p = state.particles[i];
+      let dist = Math.hypot(p.x-mouseX, p.y-mouseY);
+      if(dist <= p.radius){
+        let isCorrect = false;
+        if(lvl.mode==="primos") isCorrect = [2,3,5,7,11,13].includes(p.value);
+        else if(lvl.mode==="div3") isCorrect = (p.value % 3 === 0);
+        if(isCorrect){
+          state.score++;
+          playSound('hit');
+          state.particles.splice(i,1);
+          if(state.score >= 5){
+            cancelAnimationFrame(animationId);
+            canvas.onclick = null;
+            showFeedback(true, `¡Filtro completado! Reconociste los patrones matemáticos.`);
+            triggerNextLevel();
+          }
+        } else {
+          playSound('error');
+          showFeedback(false, `¡Error! Ese número no cumple la propiedad. Pista: ${lvl.hint}`);
+          state.score = Math.max(0, state.score-1);
+        }
+        break;
+      }
+    }
+  };
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(Math.random() < 0.03 && state.particles.length < 8){
+      state.particles.push({
+        x: Math.random()*(canvas.width-60)+30,
+        y: -20,
+        value: Math.floor(Math.random()*14)+2,
+        radius: 22,
+        speed: Math.random()*1+0.8
+      });
+    }
+    state.particles.forEach(p=>{
+      p.y += p.speed;
+      let grad = ctx.createRadialGradient(p.x,p.y,2,p.x,p.y,p.radius);
+      grad.addColorStop(0,'#1e293b'); grad.addColorStop(1,'#0f172a');
+      ctx.fillStyle = grad;
+      ctx.strokeStyle = '#00f2ff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.font = "bold 16px Orbitron";
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(p.value, p.x, p.y);
+    });
+    state.particles = state.particles.filter(p=>p.y < canvas.height+30);
+    ctx.fillStyle = '#39ff14'; ctx.font = "14px Orbitron";
+    ctx.textAlign="left"; ctx.textBaseline="top";
+    ctx.fillText(`RECOLECTADO: ${state.score} / 5`, 20, 20);
+    animationId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+// =========================================================
+// DRAG & DROP (heredado)
+// =========================================================
+function allowDrop(ev){ ev.preventDefault(); }
+function drag(ev){ ev.dataTransfer.setData("text", ev.target.id); }
+function drop(ev){
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  // Extraer solo el valor (quitar prefijos ditem-, aitem-, fitem-)
+  let valor = data.replace(/^(ditem-|aitem-|fitem-)/,'');
+  const dropZone = document.getElementById('main-drop');
+  dropZone.innerText = valor;
+  state.draggedValue = valor;
+}
+
+function evaluateDragDrop(){
+  const lvl = levels[currentLevelIdx];
+  if(state.draggedValue === lvl.correctAnswer){
+    showFeedback(true, "¡Fusión e igualación de potencia correcta!");
+    triggerNextLevel();
+  } else {
+    playSound('error');
+    showFeedback(false, `El compactador rechaza el valor. Pista: ${lvl.hint}`);
+  }
+}
+
+function evaluateAlgoDrop(){
+  const lvl = levels[currentLevelIdx];
+  if(state.draggedValue === lvl.correctAnswer){
+    showFeedback(true, "¡Primera iteración del algoritmo resuelta!");
+    triggerNextLevel();
+  } else {
+    playSound('error');
+    showFeedback(false, `Divisor incorrecto. Pista: ${lvl.hint}`);
+  }
+}
+
+// =========================================================
+// INPUT CALC (heredado)
+// =========================================================
+function evaluateInputCalc(){
+  const lvl = levels[currentLevelIdx];
+  const inputEl = document.getElementById('calc-input');
+  const inputVal = parseInt(inputEl.value);
+  if(inputVal === lvl.correctAnswer){
+    playSound('success');
+    showFeedback(true, "¡Código verificado! Sistema sincronizado correctamente.");
+    triggerNextLevel();
+  } else {
+    playSound('error');
+    showFeedback(false, `Código erróneo. Pista: ${lvl.hint}`);
+  }
+}
+
+// =========================================================
+// FLUJO GENERAL
+// =========================================================
+function showFeedback(isSuccess, text){
+  const fb = document.getElementById('feedback');
+  if(isSuccess){
+    playSound('success');
+    fb.innerHTML = `<span class="success">✔ ${text}</span>`;
+  } else {
+    fb.innerHTML = `<span class="error">✖ ${text}</span>`;
+  }
+}
+
+function triggerNextLevel(){
+  setTimeout(()=>{
+    currentLevelIdx++;
+    if(currentLevelIdx < levels.length){
+      initLevel();
+    } else {
+      showVictoryScreen();
+    }
+  }, 3200);
+}
+
+function showVictoryScreen(){
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('level-badge').innerText = "MÁSTER";
+  const container = document.getElementById('interaction-sandbox');
+  document.getElementById('stage-title').innerText = "¡ACADEMIA COMPLETADA!";
+  document.getElementById('stage-desc').innerHTML = "Felicidades, completaste los 20 niveles. Ahora comprendes el MCM en toda su extensión: reconoces múltiplos, identificas comunes, eliges el mínimo, aplicas en fracciones y sincronizas eventos. Además dominas la relación de Euler.";
+  container.innerHTML = `
+    <div style="text-align:center;padding:30px;">
+      <div style="font-size:4.5rem;margin-bottom:15px;">🏆</div>
+      <p style="font-size:1.25rem;color:var(--neon-green);font-weight:bold;font-family:'Orbitron';">SISTEMA COMPLETO LISTO PARA EVALUACIÓN</p>
+      <p style="margin-top:15px;font-size:1rem;color:var(--slate-300);">Pregunta de cierre: Explica con tus palabras qué es el MCM y para qué sirve.</p>
+      <button class="btn" style="margin-top:25px;" onclick="location.reload()">Reiniciar Simulador</button>
+    </div>`;
+}
+
+window.onload = initLevel;
+</script>
+</body>
+</html>
