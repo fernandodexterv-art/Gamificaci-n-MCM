@@ -110,13 +110,9 @@ function playSound(p){
   {num:4, nivel:1, caso:4, totalCasos:5, title:"Torre del MCM",
    desc:"<b>Nivel 1 — Comprensión:</b> Los números 8 y 12 suben una torre dividiéndose por números primos. En cada piso elige el divisor primo correcto. Si un número no es divisible, se queda igual (eso también cuenta). Al final, multiplica todos los divisores usados para obtener el MCM.",
    type:"torre-mcm", numA:8, numB:12},
-  {num:5, nivel:1, caso:5, totalCasos:5, title:"Constructor de MCM en Vivo",
-   desc:"<b>Nivel 1 — Comprensión:</b> Tienes las piezas de los factores de 8 y 12. Pulsa las piezas que necesites para construir el MCM. El reactor te muestra el producto en vivo. Recuerda: debes tomar el MAYOR exponente de cada primo. ¡Construye 24!",
-   type:"constructor-mcm",
-   numA:8, numB:12,
-   piezasA:[2,2,2], piezasB:[2,2,3],
-   objetivo:24,
-   maxPorPrimo:{2:3, 3:1}},
+  {num:5, nivel:1, caso:5, totalCasos:5, title:"El Secreto de Euler",
+   desc:"<b>Nivel 1 — Comprensión:</b> Leonhard Euler descubrió una relación fascinante: mcm(a,b) × mcd(a,b) = a × b. Usa esta relación para completar el mcm de dos números conociendo su mcd y su producto.",
+   type:"euler-reto", a:8, b:10, mcd:2, producto:80, correctAnswer:40},
   {num:6, nivel:2, caso:1, totalCasos:5, title:"El MCM en la Vida Real",
    desc:"<b>Nivel 2 — Aplicación:</b> Antes de resolver problemas con el MCM, descubre cómo funciona en situaciones reales: dos cápsulas espaciales salen juntas del mismo punto y necesitamos saber cuándo vuelven a encontrarse. Observa la animación y responde.",
    type:"intro-capsulas", a:6, b:8, correctAnswer:24},
@@ -133,55 +129,65 @@ function playSound(p){
    desc:"<b>Nivel 2 — Aplicación:</b> Tres antenas emiten pulsos para comunicar la galaxia: la antena A cada 12 segundos, la B cada 15 y la C cada 20. Observa la animación y calcula: ¿después de cuántos segundos las tres antenas emiten un pulso AL MISMO TIEMPO por primera vez?",
    type:"hiperconector-dinamico", numeros:[12,15,20], correctAnswer:60},
   {num:11, nivel:3, caso:1, totalCasos:5, title:"Validación: ¿Qué es el MCM?",
-   desc:"<b>Nivel 3 — Validación:</b> Selecciona la opción correcta.",
+   desc:"<b>Nivel 3 — Validación:</b> Selecciona la opción que mejor define el MCM. Revisa bien cada opción antes de elegir.",
    type:"quiz",
-   question:"¿Qué es el Mínimo Común Múltiplo de dos números?",
-   options:["El número más grande que los divide.",
-            "El múltiplo más pequeño que comparten ambos.",
-            "El producto de ambos siempre.",
-            "La suma de ambos."],
+   question:"¿Cuál es la definición correcta del Mínimo Común Múltiplo de dos números?",
+   options:[
+     "El número más grande que los divide a ambos.",
+     "El múltiplo más pequeño (distinto de cero) que comparten ambos números.",
+     "El producto de los dos números siempre.",
+     "La suma de todos sus múltiplos."
+   ],
    correct:1,
-   explanation:"El MCM es el múltiplo más pequeño (distinto de cero) que comparten dos o más números."},
-  {num:12, nivel:3, caso:2, totalCasos:5, title:"Validación: ¿Por qué es mínimo?",
-   desc:"<b>Nivel 3 — Validación:</b> Los comunes de 4 y 6 son 12, 24, 36... ¿Por qué elegimos 12?",
+   explanation:"El MCM es el múltiplo MÁS PEQUEÑO que comparten dos o más números. La opción A describe el MCD, la C solo es cierta cuando los números son primos entre sí, y la D es falsa (la suma de múltiplos no tiene sentido para el MCM)."},
+  {num:12, nivel:3, caso:2, totalCasos:5, title:"Validación: ¿Por qué 'mínimo'?",
+   desc:"<b>Nivel 3 — Validación:</b> Los múltiplos comunes de 4 y 6 son: 12, 24, 36, 48... ¿Por qué se elige el 12 y no el 24?",
    type:"quiz",
-   question:"¿Por qué se elige el 12 como MCM de 4 y 6?",
-   options:["Porque 12 es más grande.",
-            "Porque 12 es el PRIMERO en aparecer en ambas listas.",
-            "Porque 12 se obtiene sumando.",
-            "Porque 24 no es múltiplo de 4."],
+   question:"¿Por qué se elige el 12 como MCM de 4 y 6, y no el 24?",
+   options:[
+     "Porque 12 es más grande que 6.",
+     "Porque 12 es el PRIMERO que aparece en AMBAS listas de múltiplos.",
+     "Porque 12 se obtiene sumando 4+6+2.",
+     "Porque 24 no es múltiplo de 4."
+   ],
    correct:1,
-   explanation:"El 12 es el MENOR múltiplo que comparten ambos."},
+   explanation:"El 24 sí es múltiplo común, pero NO es mínimo. La definición exige el MENOR de los múltiplos comunes: 12, el primero en coincidir en ambas listas."},
   {num:13, nivel:3, caso:3, totalCasos:5, title:"Validación: Relación de Euler",
-   desc:"<b>Nivel 3 — Validación:</b> Si mcm(15,20)=60 y mcd(15,20)=5, ¿qué dice la relación de Euler?",
+   desc:"<b>Nivel 3 — Validación:</b> La relación de Euler dice que mcm(a,b) × mcd(a,b) = a × b. Para los números 15 y 20, sabemos que mcm = 60 y mcd = 5. ¿Se cumple la relación?",
    type:"quiz",
-   question:"¿Cuál es la relación de Euler?",
-   options:["mcm+mcd=a+b.",
-            "mcm×mcd=a×b.",
-            "mcm÷mcd=a.",
-            "mcm−mcd=b."],
+   question:"Si mcm(15,20) = 60 y mcd(15,20) = 5, ¿qué nos dice la relación de Euler?",
+   options:[
+     "60 + 5 = 65, que es la suma de los números.",
+     "60 × 5 = 300, y coincide con 15 × 20 = 300. La relación se cumple.",
+     "60 ÷ 5 = 12, que es el verdadero m.c.m.",
+     "60 − 5 = 55, que es la diferencia de los números."
+   ],
    correct:1,
-   explanation:"Euler demostró que mcm(a,b)×mcd(a,b)=a×b. En este caso: 60×5=300=15×20."},
-  {num:14, nivel:3, caso:4, totalCasos:5, title:"Validación: Fracciones",
-   desc:"<b>Nivel 3 — Validación:</b> Para sumar 1/6 + 1/9, ¿cuál es el denominador correcto?",
+   explanation:"La relación de Euler afirma: mcm(a,b) × mcd(a,b) = a × b. Aquí: 60 × 5 = 300, y 15 × 20 = 300. Se cumple perfectamente."},
+  {num:14, nivel:3, caso:4, totalCasos:5, title:"Validación: Fracciones y MCM",
+   desc:"<b>Nivel 3 — Validación:</b> Para sumar fracciones necesitamos el mismo denominador. ¿Cuál es la mejor opción para sumar 1/6 + 1/9?",
    type:"quiz",
-   question:"¿Cuál es el denominador común óptimo para 1/6 y 1/9?",
-   options:["15 porque 6+9=15.",
-            "54 porque 6×9=54.",
-            "18 porque es el m.c.m.(6,9).",
-            "3 porque es el m.c.d."],
+   question:"Para sumar 1/6 + 1/9, ¿cuál es el denominador común más eficiente y por qué?",
+   options:[
+     "Usar 15 porque 6+9=15.",
+     "Usar 54 porque 6×9=54 y es el único válido.",
+     "Usar 18 porque es el m.c.m. de 6 y 9, el MENOR denominador común.",
+     "Usar 3 porque es el m.c.d. de 6 y 9."
+   ],
    correct:2,
-   explanation:"m.c.m.(6,9)=18. Es el MENOR denominador común posible."},
-  {num:15, nivel:3, caso:5, totalCasos:5, title:"Validación: Caso Integrador",
-   desc:"<b>Nivel 3 — Validación:</b> Tres drones pasan cada 10s, 15s y 25s. ¿Cada cuánto coinciden los tres?",
+   explanation:"El m.c.m.(6,9) = 18. Con denominador 18: 1/6 = 3/18, y 1/9 = 2/18. Suma = 5/18. Con 54 también se podría, pero 18 es el MENOR denominador común posible, lo que hace los cálculos más simples."},
+  {num:15, nivel:3, caso:5, totalCasos:5, title:"Validación: Caso Integrador de Sincronización",
+   desc:"<b>Nivel 3 — Validación final:</b> Tres drones sobrevuelan la base cada 10s, 15s y 25s respectivamente. ¿Cada cuánto coinciden los TRES en el mismo punto?",
    type:"quiz",
-   question:"¿Cada cuánto coinciden los tres drones?",
-   options:["150 segundos, m.c.m.(10,15,25).",
-            "50 segundos, m.c.m.(10,25).",
-            "5 segundos, m.c.d.(10,15,25).",
-            "75 segundos, 15×5."],
+   question:"Si los drones A, B y C pasan cada 10, 15 y 25 segundos respectivamente, ¿cada cuántos segundos coinciden los TRES?",
+   options:[
+     "150 segundos, porque es el m.c.m.(10,15,25).",
+     "50 segundos, porque es el m.c.m.(10,25).",
+     "5 segundos, porque es el m.c.d.(10,15,25).",
+     "75 segundos, porque es 15×5."
+   ],
    correct:0,
-   explanation:"10=2·5, 15=3·5, 25=5². m.c.m.=2·3·5²=150."}
+   explanation:"Descomponemos: 10 = 2·5, 15 = 3·5, 25 = 5². m.c.m. = 2·3·5² = 150 segundos. Los tres drones coinciden a los 150 segundos."}
 ];
 
 let currentLevelIdx = 0;
@@ -249,8 +255,8 @@ function initLevel(){
     setupCazadorComunes(lvl);
   } else if(lvl.type === "torre-mcm"){
     setupTorreMcm(lvl);
-  } else if(lvl.type === "constructor-mcm"){
-    setupConstructorMcm(lvl);
+  } else if(lvl.type === "euler-reto"){
+    setupEulerReto(lvl);
   } else if(lvl.type === "intro-capsulas"){
     setupIntroCapsulas(lvl);
   } else if(lvl.type === "fracciones-mcm-v2"){
@@ -383,22 +389,46 @@ function answerQuiz(idx){
   const opts = document.querySelectorAll('.quiz-option');
   opts.forEach(function(b){ b.disabled = true; });
   const expl = document.getElementById('quiz-explanation');
+  
   if(idx === lvl.correct){
     opts[idx].classList.add('correct');
     playSound('success');
-    expl.innerHTML = '<div class="quiz-explanation"><b style="color:#39ff14;">✔ ¡Correcto!</b><br>' + lvl.explanation + '</div>';
+    
+    // Puntaje
+    if(typeof scores !== 'undefined'){
+      scores[currentLevelIdx] = 1;
+    }
+    
+    let extraMsg = '';
+    if(currentLevelIdx >= 10 && currentLevelIdx <= 14){
+      extraMsg = '<div style="margin-top:10px;font-family:Orbitron;color:#39ff14;text-align:center;">🌟 +1 punto de validación</div>';
+    }
+    
+    expl.innerHTML = '<div class="quiz-explanation"><b style="color:#39ff14;">✔ ¡Correcto!</b><br>' + lvl.explanation + extraMsg + '</div>';
     markCompleted();
+    
     setTimeout(function(){
       currentLevelIdx++;
-      if(currentLevelIdx < levels.length) initLevel();
-      else showVictory();
-    }, 3500);
+      if(currentLevelIdx < levels.length){
+        initLevel();
+      } else {
+        showVictory();
+      }
+    }, 4000);
   } else {
     opts[idx].classList.add('incorrect');
     opts[lvl.correct].classList.add('correct');
     playSound('error');
-    expl.innerHTML = '<div class="quiz-explanation"><b style="color:#ff0077;">✖ Incorrecto.</b><br>' + lvl.explanation + '</div>';
-    setTimeout(function(){ initLevel(); }, 5000);
+    expl.innerHTML = 
+      '<div class="quiz-explanation">' +
+      '<b style="color:#ff0077;">✖ Respuesta incorrecta.</b><br>' + 
+      lvl.explanation + 
+      '<br><br><em style="color:#fde047;">Reintentando el caso en 5 segundos...</em>' +
+      '</div>';
+    
+    setTimeout(function(){
+      if(currentLevelIdx < levels.length) initLevel();
+    }, 5000);
   }
 }
 
@@ -411,11 +441,36 @@ function showFeedback(ok, text){
 function showVictory(){
   document.getElementById('progress-segments').innerHTML = '';
   document.getElementById('level-badge').innerText = 'MÁSTER';
-  document.getElementById('case-badge').innerText = '3/3';
-  document.getElementById('stage-title').innerText = '¡COMPLETADO!';
-  document.getElementById('stage-desc').innerHTML = 'Terminaste los 3 casos base. Ahora ampliaremos a los 15.';
-  document.getElementById('interaction-sandbox').innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:4rem;">🏆</div><button class="btn" style="margin-top:20px;" onclick="location.reload()">Reiniciar</button></div>';
+  document.getElementById('case-badge').innerText = '15/15';
+  
+  // Calcular puntaje del Nivel 3
+  let puntajeNivel3 = 0;
+  for(let i=10; i<=14; i++){
+    if(completedCases.has(i)) puntajeNivel3++;
+  }
+  
+  const container = document.getElementById('interaction-sandbox');
+  document.getElementById('stage-title').innerText = '¡ACADEMIA COMPLETADA!';
+  document.getElementById('stage-desc').innerHTML = 'Felicidades, completaste los 3 niveles: comprensión, aplicación y validación. Ahora comprendes el MCM en toda su extensión.';
   document.getElementById('feedback').innerHTML = '';
+  
+  container.innerHTML = 
+    '<div style="text-align:center;padding:30px;">' +
+    '<div style="font-size:4.5rem;margin-bottom:15px;">🏆</div>' +
+    '<p style="font-size:1.3rem;color:#39ff14;font-weight:bold;font-family:Orbitron;margin-bottom:15px;">SISTEMA COMPLETO — 15/15 CASOS</p>' +
+    '<div style="background:#090d16;border-radius:12px;padding:20px;margin:15px auto;max-width:450px;border:1px solid #334155;">' +
+    '<div style="font-family:Orbitron;color:#00f2ff;font-size:0.9rem;margin-bottom:12px;">RESUMEN DE APRENDIZAJE</div>' +
+    '<div style="color:#cbd5e1;font-size:1rem;line-height:1.8;text-align:left;">' +
+    '🧠 <b style="color:#00f2ff;">Nivel 1 — Comprensión:</b> ✔<br>' +
+    '🧩 <b style="color:#ff0077;">Nivel 2 — Aplicación:</b> ✔<br>' +
+    '✅ <b style="color:#39ff14;">Nivel 3 — Validación:</b> ' + puntajeNivel3 + '/5<br>' +
+    '</div></div>' +
+    '<div style="background:rgba(253,224,71,0.1);border-left:4px solid #fde047;padding:15px;border-radius:6px;margin:15px auto;max-width:550px;text-align:left;">' +
+    '<div style="font-family:Orbitron;color:#fde047;font-size:0.9rem;margin-bottom:8px;">💭 PREGUNTA DE CIERRE:</div>' +
+    '<div style="color:#cbd5e1;font-size:1rem;line-height:1.5;">Explica con tus propias palabras: ¿qué es el MCM, por qué se dice que es "mínimo", y cómo se relaciona con el MCD según la fórmula de Euler?</div>' +
+    '</div>' +
+    '<button class="btn" style="margin-top:20px;" onclick="location.reload()">Reiniciar Simulador</button>' +
+    '</div>';
 }
 
 function setupCazadorComunes(lvl){
@@ -2581,8 +2636,131 @@ function setupHiperConectorDinamico(lvl){
     }
   };
 }
+function setupEulerReto(lvl){
+  const sandbox = document.getElementById('interaction-sandbox');
+  state.juegoTerminado = false;
+
+  function renderEuler(){
+    let html = '';
+    
+    // Panel de la fórmula de Euler
+    html += '<div style="background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(0,242,255,0.2));border:2px solid #a855f7;border-radius:12px;padding:20px;margin-bottom:15px;text-align:center;">';
+    html += '<div style="font-family:Orbitron;color:#a855f7;font-size:0.85rem;margin-bottom:8px;letter-spacing:1px;">🧠 RELACIÓN DE EULER</div>';
+    html += '<div style="font-family:Orbitron;color:#fde047;font-size:1.4rem;font-weight:bold;margin-bottom:8px;">mcm(a,b) × mcd(a,b) = a × b</div>';
+    html += '<div style="font-size:0.85rem;color:#cbd5e1;">Una fórmula elegante que relaciona el mcm y el mcd</div>';
+    html += '</div>';
+    
+    // Datos dados
+    html += '<div style="background:#090d16;border-radius:12px;padding:15px;margin-bottom:15px;">';
+    html += '<div style="font-family:Orbitron;color:#00f2ff;font-size:0.9rem;margin-bottom:10px;text-align:center;">📊 DATOS CONOCIDOS</div>';
+    html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
+    
+    html += '<div style="background:rgba(0,242,255,0.1);border:1px solid #00f2ff;border-radius:10px;padding:10px 20px;text-align:center;">';
+    html += '<div style="font-family:Orbitron;color:#00f2ff;font-size:0.75rem;">a</div>';
+    html += '<div style="font-family:Orbitron;color:white;font-size:1.5rem;font-weight:bold;">' + lvl.a + '</div>';
+    html += '</div>';
+    
+    html += '<div style="background:rgba(255,0,119,0.1);border:1px solid #ff0077;border-radius:10px;padding:10px 20px;text-align:center;">';
+    html += '<div style="font-family:Orbitron;color:#ff0077;font-size:0.75rem;">b</div>';
+    html += '<div style="font-family:Orbitron;color:white;font-size:1.5rem;font-weight:bold;">' + lvl.b + '</div>';
+    html += '</div>';
+    
+    html += '<div style="background:rgba(253,224,71,0.1);border:1px solid #fde047;border-radius:10px;padding:10px 20px;text-align:center;">';
+    html += '<div style="font-family:Orbitron;color:#fde047;font-size:0.75rem;">mcd</div>';
+    html += '<div style="font-family:Orbitron;color:white;font-size:1.5rem;font-weight:bold;">' + lvl.mcd + '</div>';
+    html += '</div>';
+    
+    html += '<div style="background:rgba(57,255,20,0.1);border:1px solid #39ff14;border-radius:10px;padding:10px 20px;text-align:center;">';
+    html += '<div style="font-family:Orbitron;color:#39ff14;font-size:0.75rem;">a × b</div>';
+    html += '<div style="font-family:Orbitron;color:white;font-size:1.5rem;font-weight:bold;">' + lvl.producto + '</div>';
+    html += '</div>';
+    
+    html += '</div></div>';
+    
+    // Instrucción + input
+    html += '<div style="background:rgba(0,242,255,0.08);border-left:4px solid #00f2ff;padding:15px;border-radius:6px;margin-bottom:15px;">';
+    html += '<div style="font-family:Orbitron;color:#00f2ff;font-size:0.95rem;margin-bottom:8px;">🎯 TU MISIÓN:</div>';
+    html += '<div style="color:#cbd5e1;font-size:1rem;line-height:1.5;">Usa la relación de Euler para calcular el <b style="color:#fde047;">mcm(' + lvl.a + ',' + lvl.b + ')</b>.</div>';
+    html += '<div style="color:#cbd5e1;font-size:0.95rem;margin-top:8px;">Pista: si mcm × mcd = ' + lvl.producto + ', entonces mcm = ' + lvl.producto + ' ÷ ' + lvl.mcd + '.</div>';
+    html += '</div>';
+    
+    html += '<div class="input-box-central">';
+    html += '<input type="number" id="euler-input" placeholder="?" style="background:#090d16;border:2px solid #4b5563;color:white;font-family:Orbitron;font-size:1.6rem;width:140px;text-align:center;padding:10px;border-radius:8px;">';
+    html += '<button class="btn" onclick="verificarEuler()">Verificar</button>';
+    html += '</div>';
+    
+    // Verificación alternativa
+    if(!state.juegoTerminado){
+      html += '<div style="margin-top:15px;text-align:center;">';
+      html += '<button class="btn" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);font-size:0.9rem;padding:10px 20px;" onclick="mostrarVerificacionEuler()">🔍 Verificar con cálculo directo</button>';
+      html += '</div>';
+      html += '<div id="verificacion-euler" style="margin-top:10px;"></div>';
+    }
+    
+    sandbox.innerHTML = html;
+    
+    if(!state.juegoTerminado){
+      setTimeout(function(){
+        const inp = document.getElementById('euler-input');
+        if(inp) inp.focus();
+      }, 50);
+    }
+  }
+
+  window.mostrarVerificacionEuler = function(){
+    const div = document.getElementById('verificacion-euler');
+    function gcd(x,y){ return y === 0 ? x : gcd(y, x % y); }
+    const mcmDirecto = (lvl.a * lvl.b) / gcd(lvl.a, lvl.b);
+    
+    div.innerHTML = 
+      '<div style="background:rgba(57,255,20,0.08);border:1px solid #39ff14;border-radius:10px;padding:12px 15px;">' +
+      '<div style="font-family:Orbitron;color:#39ff14;font-size:0.9rem;margin-bottom:6px;">🔍 Verificación directa:</div>' +
+      '<div style="color:#cbd5e1;font-size:0.95rem;line-height:1.6;">' +
+      'También podemos calcular mcm(' + lvl.a + ',' + lvl.b + ') directamente:<br>' +
+      '<b style="color:#fde047;">mcm = (a × b) ÷ mcd = (' + lvl.a + ' × ' + lvl.b + ') ÷ ' + lvl.mcd + ' = ' + lvl.producto + ' ÷ ' + lvl.mcd + ' = ' + mcmDirecto + '</b>' +
+      '</div>' +
+      '<div style="color:#94a3b8;font-size:0.85rem;margin-top:8px;font-style:italic;">La relación de Euler te confirma que ambos métodos dan el mismo resultado.</div>' +
+      '</div>';
+    playSound('hit');
+  };
+
+  window.verificarEuler = function(){
+    const inp = document.getElementById('euler-input');
+    const v = parseInt(inp.value);
+    
+    if(v === lvl.correctAnswer){
+      state.juegoTerminado = true;
+      markCompleted();
+      playSound('success');
+      
+      const div = document.getElementById('verificacion-euler');
+      if(div){
+        div.innerHTML = 
+          '<div style="background:rgba(57,255,20,0.15);border:2px solid #39ff14;border-radius:10px;padding:15px;">' +
+          '<div style="font-family:Orbitron;color:#39ff14;font-size:1rem;margin-bottom:8px;text-align:center;">✅ ¡VERIFICACIÓN DE EULER!</div>' +
+          '<div style="color:white;font-size:1rem;line-height:1.6;text-align:center;">' +
+          'mcm(' + lvl.a + ',' + lvl.b + ') × mcd(' + lvl.a + ',' + lvl.b + ') = a × b<br>' +
+          '<b style="color:#fde047;">' + v + ' × ' + lvl.mcd + ' = ' + lvl.producto + '</b><br>' +
+          '<b style="color:#00f2ff;">' + (v * lvl.mcd) + ' = ' + lvl.producto + ' ✓</b>' +
+          '</div></div>';
+      }
+      
+      showFeedback(true, '¡Excelente! mcm(' + lvl.a + ',' + lvl.b + ') = ' + v + '. Y se cumple que ' + v + ' × ' + lvl.mcd + ' = ' + lvl.producto + ' = ' + lvl.a + ' × ' + lvl.b + '. ¡La relación de Euler se cumple!');
+      
+      setTimeout(function(){
+        currentLevelIdx++;
+        if(currentLevelIdx < levels.length) initLevel();
+        else showVictory();
+      }, 5000);
+    } else {
+      playSound('error');
+      showFeedback(false, 'Recuerda la fórmula: mcm × mcd = ' + lvl.producto + '. Por lo tanto, mcm = ' + lvl.producto + ' ÷ ' + lvl.mcd + '. ¿Cuánto es?');
+    }
+  };
+
+  renderEuler();
+}
 window.onload = function(){ initLevel(); };
 </script>
 </body>
 </html>
- 
